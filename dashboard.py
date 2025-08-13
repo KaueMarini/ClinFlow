@@ -87,17 +87,27 @@ def get_color_map(_profissionais):
     return {prof: colors[i % len(colors)] for i, prof in enumerate(_profissionais)}
 
 @st.cache_resource(ttl=300)
+# dashboard.py
+
+@st.cache_resource(ttl=300)
 def conectar_gspread():
     """Conecta ao Google Sheets de forma segura."""
     try:
-        scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
-        creds = Credentials.from_service_account_file(".streamlit/credentials.json", scopes=scope)
+        # Tenta carregar as credenciais do Secrets do Streamlit (para produção)
+        creds_dict = st.secrets["gcp_service_account"]
+        creds = Credentials.from_service_account_info(creds_dict, scopes=['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive'])
         return gspread.authorize(creds)
-    except FileNotFoundError:
-        st.error("ERRO: Arquivo 'credentials.json' não encontrado na pasta '.streamlit'.")
-        return None
-    except Exception as e:
-        st.error(f"Erro de autenticação com Google: {e}"); return None
+    except (FileNotFoundError, KeyError):
+        # Se falhar, tenta carregar o arquivo local (para desenvolvimento)
+        try:
+            creds = Credentials.from_service_account_file(".streamlit/credentials.json", scopes=['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive'])
+            return gspread.authorize(creds)
+        except FileNotFoundError:
+            st.error("ERRO: Arquivo 'credentials.json' não encontrado. Configure os secrets no Streamlit Cloud.")
+            return None
+        except Exception as e:
+            st.error(f"Erro de autenticação com Google: {e}")
+            return None
 
 @st.cache_data(ttl=60)
 def carregar_dados_online(_client, nome_planilha):
