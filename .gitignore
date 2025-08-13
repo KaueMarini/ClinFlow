@@ -1,0 +1,14 @@
+# Ignorar a pasta de cache do Python
+__pycache__/
+
+# Ignorar arquivos de ambiente virtual (se você usar)
+venv/
+*.venv
+
+# Ignorar arquivos de credenciais
+.streamlit/credentials.json
+credentials.json
+
+# Ignorar arquivos de sistema operacional
+.DS_Store
+Thumbs.db
