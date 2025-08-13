@@ -37,48 +37,6 @@ O sistema foi projetado para ser simples e integrado, seguindo o fluxo:
 
 A seção **"📦 Baixa Material"** foi projetada para mostrar **apenas atendimentos de dias anteriores** que ainda não tiveram seus materiais deduzidos do estoque. Isso é uma regra de negócio para garantir que apenas atendimentos já consolidados entrem no controle de consumo, evitando que consultas do dia corrente, que ainda podem ser alteradas ou canceladas, apareçam na lista de baixa.
 
-## 🛠️ Como Executar o Projeto Localmente
-
-Se você quiser executar este projeto em sua própria máquina, siga os passos abaixo.
-
-### Pré-requisitos
-* Python 3.9+
-* Conta do Google
-
-### Passos
-
-1.  **Clone o repositório:**
-    ```bash
-    git clone [https://github.com/seu-usuario/ClinFlow.git](https://github.com/seu-usuario/ClinFlow.git)
-    cd ClinFlow
-    ```
-
-2.  **Crie um ambiente virtual (Recomendado):**
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # No Windows: venv\Scripts\activate
-    ```
-
-3.  **Instale as dependências:**
-    ```bash
-    pip install -r requirements.txt
-    ```
-
-4.  **Configure as Credenciais do Google:**
-    * Crie um projeto no [Google Cloud Console](https://console.cloud.google.com/).
-    * Ative as APIs **"Google Sheets API"** e **"Google Drive API"**.
-    * Crie uma **Conta de Serviço (Service Account)**.
-    * Gere uma chave para essa conta no formato **JSON**.
-    * Renomeie o arquivo JSON baixado para `credentials.json`.
-    * Crie uma pasta chamada `.streamlit` na raiz do projeto e mova o arquivo `credentials.json` para dentro dela.
-    * Abra o arquivo `credentials.json` e copie o email da conta de serviço (campo `client_email`).
-    * Na sua Planilha Google, clique em **"Share"** (Compartilhar) e cole o email da conta de serviço para dar permissão de editor.
-
-5.  **Execute o aplicativo Streamlit:**
-    ```bash
-    streamlit run dashboard.py
-    ```
-
 ## 💻 Tecnologias Utilizadas
 
 * **Python**
