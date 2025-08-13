@@ -237,7 +237,7 @@ profissionais_unicos = sorted(st.session_state.agenda['Profissional Responsável
 color_map = get_color_map(profissionais_unicos)
 with st.sidebar.expander("📅 Período de Análise", expanded=True):
     periodo_opts = ["Hoje", "Este Mês", "Mês Passado", "Este Ano", "Últimos 7 dias", "Últimos 30 dias", "Personalizado..."]
-    periodo_selecionado = st.selectbox("Selecionar Período Rápido", options=periodo_opts)
+    periodo_selecionado = st.selectbox("Selecionar Período Rápido", options=periodo_opts, index=3)
     today = datetime.now().date()
     if periodo_selecionado == "Hoje": data_inicio, data_fim = today, today
     elif periodo_selecionado == "Este Mês": data_inicio, data_fim = today.replace(day=1), today
