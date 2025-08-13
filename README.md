@@ -18,7 +18,7 @@ Um dashboard interativo construído com Streamlit e Python para a gestão comple
 * **📊 Status do Estoque:** Painel para monitorar os níveis atuais de materiais, com alertas visuais para itens que precisam de reposição.
 * **⚙️ Configurações:** Interface para cadastrar e editar materiais, procedimentos (Ficha Técnica) e corrigir registros de agendamentos.
 
-##  workflow Fluxo de Uso
+##  Workflow Fluxo de Uso
 
 O sistema foi projetado para ser simples e integrado, seguindo o fluxo:
 
