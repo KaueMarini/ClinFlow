@@ -8,10 +8,10 @@ from datetime import datetime, timedelta
 import plotly.graph_objects as go
 from datetime import datetime
 
-# --- Configuração da Página ---
+
 st.set_page_config(page_title="Gestão da Clínica", page_icon="🩺", layout="wide")
 
-# --- Injeção de CSS para Fonte Customizada ---
+
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
@@ -76,9 +76,7 @@ st.markdown("""
     }
     </style>
 """, unsafe_allow_html=True)
-# =====================================================================================
-# --- SEÇÃO DE FUNÇÕES ---
-# =====================================================================================
+
 
 @st.cache_data
 def get_color_map(_profissionais):
@@ -87,18 +85,17 @@ def get_color_map(_profissionais):
     return {prof: colors[i % len(colors)] for i, prof in enumerate(_profissionais)}
 
 @st.cache_resource(ttl=300)
-# dashboard.py
+
 
 @st.cache_resource(ttl=300)
 def conectar_gspread():
     """Conecta ao Google Sheets de forma segura."""
     try:
-        # Tenta carregar as credenciais do Secrets do Streamlit (para produção)
         creds_dict = st.secrets["gcp_service_account"]
         creds = Credentials.from_service_account_info(creds_dict, scopes=['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive'])
         return gspread.authorize(creds)
     except (FileNotFoundError, KeyError):
-        # Se falhar, tenta carregar o arquivo local (para desenvolvimento)
+        
         try:
             creds = Credentials.from_service_account_file(".streamlit/credentials.json", scopes=['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive'])
             return gspread.authorize(creds)
@@ -129,7 +126,7 @@ def carregar_dados_online(_client, nome_planilha):
             agenda['Estoque Deduzido'] = agenda['Estoque Deduzido'].fillna('NÃO').astype(str).str.strip().str.upper()
             agenda.loc[agenda['Estoque Deduzido'] == '', 'Estoque Deduzido'] = 'NÃO'
         
-        # Limpeza de Materiais e consolidação de duplicatas
+        # Limpeza de Materiais 
         materiais.columns = [str(col).strip() for col in materiais.columns]
         materiais['Preco Unitario (R$)'] = pd.to_numeric(materiais['Preco Unitario (R$)'], errors='coerce').fillna(0)
         if 'Quantidade em Estoque' in materiais.columns: materiais['Quantidade em Estoque'] = pd.to_numeric(materiais['Quantidade em Estoque'], errors='coerce').fillna(0)
@@ -199,12 +196,10 @@ def calcular_analise_clientes(agenda_com_preco):
     col_order.append('Última Visita')
     return analise_clientes.reindex(columns=col_order).fillna('')
 
-# =====================================================================================
-# --- LÓGICA PRINCIPAL DO APLICATIVO ---
-# =====================================================================================
+
 NOME_PLANILHA = "Banco de Dados - Clínica"
 client = conectar_gspread()
-TEMPO_ATUALIZACAO_SEGUNDOS = 10  # ⏱️ Troque para 2, 5, 60, etc.
+TEMPO_ATUALIZACAO_SEGUNDOS = 10  
 
 # if "ultima_atualizacao" not in st.session_state:      #Codigo Bugado 
 #     st.session_state.ultima_atualizacao = datetime.now()
@@ -237,7 +232,7 @@ if st.session_state.agenda.empty:
     st.warning("Sua planilha de agendamentos está vazia. Adicione dados através do Google Forms para começar a análise.")
     st.stop()
 
-# --- LÓGICA COMUM A VÁRIAS PÁGINAS ---
+
 profissionais_unicos = sorted(st.session_state.agenda['Profissional Responsável'].dropna().unique())
 color_map = get_color_map(profissionais_unicos)
 with st.sidebar.expander("📅 Período de Análise", expanded=True):
@@ -262,11 +257,10 @@ with st.sidebar.expander("Outros Filtros"):
 agenda_filtrada = st.session_state.agenda[(st.session_state.agenda['Data do Atendimento'].dt.date >= data_inicio) & (st.session_state.agenda['Data do Atendimento'].dt.date <= data_fim) & (st.session_state.agenda['Profissional Responsável'].isin(profissionais_selecionados)) & (st.session_state.agenda['Procedimento Realizado'].isin(procedimentos_selecionados))]
 df_financeiro, df_consumo, agenda_com_preco_filtrada = calcular_financeiro(agenda_filtrada, st.session_state.materiais, st.session_state.ficha)
 
-# --- ROTEAMENTO DE PÁGINAS ---
 if pagina_selecionada == "📊 Dashboard":
     st.title("⚕️ Dashboard de Gestão")
 
-    # Meta de faturamento na sidebar
+    
     with st.sidebar.expander("🎯 Metas e Objetivos"):
         meta_faturamento = st.number_input(
             "Defina sua meta de faturamento (R$)", 
@@ -276,7 +270,7 @@ if pagina_selecionada == "📊 Dashboard":
     # Abas do dashboard
     tab1, tab2, tab3 = st.tabs(["📊 Visão Geral", "💰 Análise Financeira", "👥 Análise de Clientes"])
 
-    # --- Aba 1: Visão Geral ---
+    
     with tab1:
         st.markdown("""
     <style>
@@ -341,7 +335,6 @@ if pagina_selecionada == "📊 Dashboard":
         if agenda_filtrada.empty:
             st.warning("Nenhum dado encontrado para os filtros selecionados.")
         else:
-            # Cálculos dos dados atuais e anteriores (supondo já calculados)
             duracao_periodo = max((data_fim - data_inicio).days, 1)
             periodo_anterior_fim = data_inicio - timedelta(days=1)
             periodo_anterior_inicio = data_inicio - timedelta(days=duracao_periodo)
@@ -369,7 +362,7 @@ if pagina_selecionada == "📊 Dashboard":
             delta_atendimentos = ((total_atendimentos_atual - total_atendimentos_anterior) / total_atendimentos_anterior
                                   if total_atendimentos_anterior > 0 else (1 if total_atendimentos_atual > 0 else 0))
 
-            # Cards métricos em colunas
+            
             col1, col2, col3 = st.columns(3, gap="large")
 
             with col1:
@@ -402,17 +395,17 @@ if pagina_selecionada == "📊 Dashboard":
             df_mes['Data do Atendimento'] = pd.to_datetime(df_mes['Data do Atendimento'])
             df_mes['Ano-Mes'] = df_mes['Data do Atendimento'].dt.to_period('M').astype(str)
 
-            # Agrupar por Ano-Mes somando receita e lucro
+            
             df_mes_agrupado = df_mes.groupby('Ano-Mes').agg({
                 'Preco Venda (R$)': 'sum',
                 'Lucro Atendimento (R$)': 'sum'
             }).reset_index()
 
-            # Transformar para formato "long" para usar no px.bar com múltiplas barras
+            
             df_long = df_mes_agrupado.melt(id_vars='Ano-Mes', value_vars=['Preco Venda (R$)', 'Lucro Atendimento (R$)'], 
                                         var_name='Tipo', value_name='Valor')
 
-            # Gráfico de colunas agrupadas (lado a lado)
+            # Gráfico de colunas agrupadas 
             fig = px.bar(df_long, x='Ano-Mes', y='Valor', color='Tipo', barmode='group',
                         title='Receita e Lucro Mensal',
                         labels={'Ano-Mes': 'Mês', 'Valor': 'Valor (R$)', 'Tipo': 'Métrica'})
@@ -467,13 +460,13 @@ if pagina_selecionada == "📊 Dashboard":
                     <div class="progress-text">{progresso:.1%} da meta de R$ {meta_faturamento:,.2f}</div>
                 </div>
                 """, unsafe_allow_html=True)
-    # --- Aba 2: Análise Financeira ---
+    
     with tab2:
         st.header("💰 Análise Financeira por Procedimento")
         st.divider()
         st.dataframe(df_financeiro, use_container_width=True)
 
-    # --- Aba 3: Análise de Clientes ---
+    
     with tab3:
         st.header("👥 Análise de Clientes (CRM)")
         st.divider()
@@ -493,7 +486,7 @@ if pagina_selecionada == "📊 Dashboard":
                     df_genero = df_analise_clientes['Genero'].value_counts().reset_index()
                     df_genero.columns = ['Genero', 'count']  # <- IMPORTANTE!
 
-                    # Gera gráfico
+                    
                     fig_genero = px.pie(
                         df_genero,
                         names='Genero',
